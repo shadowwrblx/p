@@ -865,34 +865,7 @@ local randommsgs = {
 	'yeah'
 }
 local messageRequest = game:GetService('ReplicatedStorage').DefaultChatSystemChatEvents.SayMessageRequest
-msgdone.OnClientEvent:Connect(function(msgdata)
-	local speaker = tostring(msgdata.FromSpeaker)
-	local message = string.lower(msgdata.Message)
-	task.wait(1.4 + math.random(0.1, 0.4))
-	local plrChatted = game:GetService('Players')[speaker] or nil
-	if (plrChatted and plrChatted == game:GetService('Players').LocalPlayer) or Toggles.AutoNearReply.Value == false or not plrChatted then
-		return
-	end
-	pcall(function()
-		local chatChar = plrChatted.Character
-		if (plrChatted.Character and plrChatted.Character.Humanoid.RootPart) then
-			local root = chatChar.Humanoid.RootPart
-			if (root.Position - game:GetService('Players').LocalPlayer.Character.Humanoid.RootPart.Position).Magnitude < 11 then
-				if message == 'hello' or message == 'hi' or message == 'sup' then
-					messageRequest:FireServer("hello", 'All')
-				elseif string.find(message, 'jump') then
-					messageRequest:FireServer('ok', 'All')
-				elseif string.find(message, '?') and not string.find(message,'bot') then
-					messageRequest:FireServer('yes', 'All')
-				elseif string.find(message,'bot') then
-					messageRequest:FireServer('no im not', 'All')
-				else
-					messageRequest:FireServer(randommsgs[math.random(1, #randommsgs)], 'All')
-				end
-			end
-		end
-	end)
-end)
+
 while task.wait(Options.AutoSHMinutes.Value * 60) do
 	if not hopTimer then
 		hopSet()
