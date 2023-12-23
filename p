@@ -156,43 +156,17 @@ local function saveSettings()
 end
 
 function serverHop()
-	--local isVip = game:GetService('RobloxReplicatedStorage').GetServerType:InvokeServer()
-	--if isVip == "VIPServer" then return end
-	if Toggles.autoSHEnabled == false and not getgenv().clickSH then
-		return
-	end
-	local gameId
-	gameId = "8737602449"
-	if Toggles.serverHopAtVoice.Value == true then
-		gameId = "8943844393"
-	end
-	if Toggles.RandomServersHop.Value == true then
-		math.randomseed(tick())
-		local random = math.random(0, 1)
-		if random == 1 then
-			gameId = '8943844393'
-		else
-			gameId = '8737602449'
-		end
-	end
-	local servers = {}
-	local req = request({
-		Url = "https://games.roblox.com/v1/games/" .. gameId .. "/servers/Public?sortOrder=Desc&limit=100"
-	})
-	local body = httpservice:JSONDecode(req.Body)
-	if body and body.data then
-		for i, v in next, body.data do
-			if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.playing > 19 then
-				table.insert(servers, 1, v.id)
-			end
-		end
-	end
-	if #servers > 0 then
-		game:GetService("TeleportService"):TeleportToPlaceInstance(gameId, servers[math.random(1, #servers)], Players.LocalPlayer)
-	end
-	game:GetService("TeleportService").TeleportInitFailed:Connect(function()
-		game:GetService("TeleportService"):TeleportToPlaceInstance(gameId, servers[math.random(1, #servers)], Players.LocalPlayer)
-	end)
+    for i, v in pairs(request({Url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/serverType", Method = "GET"})) do
+        if i == "Body" then
+            for i = 1, #game:GetService("HttpService"):JSONDecode(v)["data"] do
+                local serverData = game:GetService("HttpService"):JSONDecode(v)["data"][i]
+                if serverData["id"] ~= game.JobId and serverData["playing"] ~= serverData["maxPlayers"] then
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, serverData["id"], game:GetService("Players").LocalPlayer)
+                    break
+                end
+            end
+        end
+    end
 end
 local function waitServerHop()
 	task.wait(Options.AutoSHMinutes.Value * 60)
